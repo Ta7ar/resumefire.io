@@ -1,0 +1,30 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin color($theme) {
+    section {
+      padding: 2rem;
+    }
+    #banner {
+        #title {
+          color: mat.get-theme-color($theme, primary, 50);
+        }
+
+        .large-text {
+          font-weight: 600;
+          font-size: xx-large;
+          margin: 0;
+        }
+    }
+
+    .wave .shape-fill {
+        fill: mat.get-theme-color($theme, primary, 50);
+    }
+}
+
+
+@mixin theme($theme) {
+  @if mat.theme-has($theme, color) {
+    @include color($theme);
+  }
+}

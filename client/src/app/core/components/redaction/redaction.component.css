@@ -1,0 +1,15 @@
+button {
+    margin: 0.5rem;
+}
+
+#resume-view-container {
+    position: relative;
+}
+
+#bounding-boxes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}

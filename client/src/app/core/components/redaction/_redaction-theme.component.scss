@@ -1,0 +1,39 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin color($theme) {
+
+  // #resume-view-container{
+  //     border-radius: 12px;
+  //     border: 2px dashed mat.get-theme-color($theme, primary, 50);
+  // }
+  #resume-view-container {
+    display: flex;
+    border-radius: 12px;
+    border: 2px dashed mat.get-theme-color($theme, neutral-variant, 80);
+  }
+
+  #resume-view {
+    border-radius: 12px;
+  }
+
+  .bounding-box {
+    stroke: mat.get-theme-color($theme, primary, 50);
+    fill: transparent;
+  }
+
+  .bounding-box.selected {
+    fill: mat.get-theme-color($theme, primary, 50);
+    ;
+  }
+
+  .bounding-box:hover {
+    cursor: pointer;
+  }
+}
+
+@mixin theme($theme) {
+  @if mat.theme-has($theme, color) {
+    @include color($theme);
+  }
+}

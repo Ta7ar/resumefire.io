@@ -1,0 +1,16 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+@mixin color($theme) {
+    #footer {
+        background-color: mat.get-theme-color($theme, primary, 95);
+        color: mat.get-theme-color($theme, secondary, 30);
+    }
+}
+
+
+@mixin theme($theme) {
+  @if mat.theme-has($theme, color) {
+    @include color($theme);
+  }
+}

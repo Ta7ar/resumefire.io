@@ -1,1 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; }
+main {
+    min-height: calc(100vh - 128px);
+}
+
+* {
+    font-family:DM Sans, sans-serif !important;
+    /* font-family: Roboto, "Helvetica Neue", sans-serif !important;  */
+}
+
+.material-icons{
+    font-family: 'Material Icons' !important;
+}
