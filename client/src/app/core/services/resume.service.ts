@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
@@ -2054,7 +2055,7 @@ const mock_bounding_boxes = {
 }
 
 export type Dimensions = [
-  height: number, 
+  height: number,
   width: number
 ]
 
@@ -2066,14 +2067,18 @@ export type BoundingBox = [
 ]
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ResumeService {
 
   // resume?: File;
-  constructor() { }
+  constructor(private httpClient: HttpClient) { }
 
-  getBoundingBoxes(resume: File): Observable<{ dimensions: Dimensions, boxes: BoundingBox[] }> {
-    return of(mock_bounding_boxes)
+  getBoundingBoxes(resume: File): Observable<{ dimensions: Dimensions, boxes: BoundingBox[] }[]> {
+    const formdata = new FormData();
+    formdata.append('resume-file', resume);
+    return this.httpClient.post<{ dimensions: Dimensions, boxes: BoundingBox[] }[]>(
+      "/api/generate-bounding-boxes", formdata
+    );
   }
 }

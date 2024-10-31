@@ -30,6 +30,14 @@
   .bounding-box:hover {
     cursor: pointer;
   }
+
+  #loading-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    background-color: rgba(mat.get-theme-color($theme, neutral, 50), 0.1);
+}
 }
 
 @mixin theme($theme) {
