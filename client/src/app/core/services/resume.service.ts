@@ -2081,4 +2081,10 @@ export class ResumeService {
       "/api/generate-bounding-boxes", formdata
     );
   }
+
+  postBoundingBoxes(boundingBoxes: BoundingBox[]): Observable<any>{
+    return this.httpClient.post(
+      "/api/generate-redacted-pdf", boundingBoxes
+    )
+  }
 }

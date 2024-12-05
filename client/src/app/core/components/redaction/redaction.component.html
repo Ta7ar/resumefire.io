@@ -1,35 +1,68 @@
 <div>
-    <div style="text-align: center;">
-        <div id="resume-view-container">
-            @if (boundingBoxes && boundingBoxes.length > 0){
-            <svg [attr.viewBox]="svgViewBox" id="bounding-boxes" xmlns="http://www.w3.org/2000/svg" #boundingBoxesSvg>
-                @for(boundingBox of boundingBoxes; track boundingBox.toString(); let i = $index){
-                <rect class="bounding-box" stroke-width="2" [attr.height]="boundingBox[3]" [attr.width]="boundingBox[2]"
-                    [attr.y]="boundingBox[1]" [attr.x]="boundingBox[0]" [attr.id]="'bounding-box-' + i"
-                    (click)="selectedBoundingBoxes.toggle(boundingBox)"
-                    [class.selected]="selectedBoundingBoxes.isSelected(boundingBox)" />
-                }
-            </svg>
-            }
-            @if (true){
-                 <div id="loading-container">
-                    <mat-progress-bar mode="buffer"></mat-progress-bar>
-                 </div>
-            }
-            <canvas id="resume-view" #resumeView></canvas>
-        </div>
-        <button type="button" mat-flat-button (click)="fileInput.click()">
-            <mat-icon>upload</mat-icon>
-            @if (resume){
-            <span>{{resume.name}}</span>
-            } @else {
-            <span>upload resume</span>
-            }
-        </button>
-        <input hidden type="file" accept="application/pdf" (change)="onResumeSelected($event)" #fileInput>
-        <button mat-stroked-button [disabled]="!resume" (click)="drawBoundingBoxes()">
-            start anonymizing
-            <mat-icon>arrow_right_alt</mat-icon>
-        </button>
+  <div style="text-align: center">
+    <div id="resume-view-container">
+      @if (boundingBoxes && boundingBoxes.length > 0){
+      <svg
+        [attr.viewBox]="svgViewBox"
+        id="bounding-boxes"
+        xmlns="http://www.w3.org/2000/svg"
+        #boundingBoxesSvg
+      >
+        @for(boundingBox of boundingBoxes; track boundingBox.toString(); let i =
+        $index){
+        <rect
+          class="bounding-box"
+          stroke-width="2"
+          [attr.height]="boundingBox[3]"
+          [attr.width]="boundingBox[2]"
+          [attr.y]="boundingBox[1]"
+          [attr.x]="boundingBox[0]"
+          [attr.id]="'bounding-box-' + i"
+          (click)="selectedBoundingBoxes.toggle(boundingBox)"
+          [class.selected]="selectedBoundingBoxes.isSelected(boundingBox)"
+          rx="5"
+        />
+        }
+      </svg>
+      }
+      <canvas id="resume-view" #resumeView></canvas>
+      @if(loadingBoundingBoxes){
+      <app-loader id="redacting-loader"></app-loader>
+      }
     </div>
+    <button type="button" mat-flat-button (click)="fileInput.click()">
+      <mat-icon>upload</mat-icon>
+      @if (resume){
+      <span>{{ resume.name }}</span>
+      } @else {
+      <span>upload resume</span>
+      }
+    </button>
+    <input
+      hidden
+      type="file"
+      accept="application/pdf"
+      (change)="onResumeSelected($event)"
+      #fileInput
+    />
+    @if (boundingBoxes && boundingBoxes.length){
+    <button
+      mat-stroked-button
+      [disabled]="!selectedBoundingBoxes.selected.length"
+      (click)="submitSelectedBoundingBoxes()"
+    >
+      generate redacted pdf
+      <mat-icon>check</mat-icon>
+    </button>
+    } @else{
+    <button
+      mat-stroked-button
+      [disabled]="!resume"
+      (click)="drawBoundingBoxes()"
+    >
+      start anonymizing
+      <mat-icon>arrow_right_alt</mat-icon>
+    </button>
+    }
+  </div>
 </div>

@@ -1,27 +1,34 @@
 #navbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 64px;
-    /* position: sticky; */
-    /* position: -webkit-sticky; For macOS/iOS Safari */
-    /* top: 0; Sets the sticky toolbar to be on top */
-    /* z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  /* position: sticky; */
+  /* position: -webkit-sticky; For macOS/iOS Safari */
+  /* top: 0; Sets the sticky toolbar to be on top */
+  /* z-index: 1000;
     background-color: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(20px) saturate(160%) contrast(45%) brightness(140%);
     -webkit-backdrop-filter: blur(20px) saturate(160%) contrast(45%) brightness(140%); */
 }
 
+@media (min-width: 960px) {
+  #navbar {
+    padding-left: 20vw;
+    padding-right: 20vw;
+  }
+}
+
 a {
-    padding: 0 1rem;
+  padding: 0 1rem;
 }
 
 a#logo {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 a#logo p#title {
-    font-size: large;
-    font-weight: 500;
+  font-size: large;
+  font-weight: 500;
 }

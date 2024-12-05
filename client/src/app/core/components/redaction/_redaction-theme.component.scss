@@ -38,6 +38,9 @@
     z-index: 999;
     background-color: rgba(mat.get-theme-color($theme, neutral, 50), 0.1);
 }
+  #redacting-loader .dot {
+    background-color: mat.get-theme-color($theme, primary, 40)
+  }
 }
 
 @mixin theme($theme) {

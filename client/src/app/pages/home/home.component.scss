@@ -1,13 +1,20 @@
 .centered {
-    text-align: center;
+  text-align: center;
 }
 
 #upload-form-container {
-    text-align: center;
+  text-align: center;
 }
 
 #upload-form {
-    // 11.33 × 14.67
-    width: calc(90vh * 0.77);
-    height: 90vh;
+  // 11.33 × 14.67
+  // width: calc(90vh * 0.77);
+  // height: 90vh;
 }
+
+@media (min-width: 960px) {
+    main {
+      padding-right: 20vw;
+      padding-left: 20vw;
+    }
+  }

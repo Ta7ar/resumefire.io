@@ -6,7 +6,13 @@ app = Flask(__name__)
 @app.post("/api/generate-bounding-boxes")
 def generate_bounding_boxes():
     resume_file = request.files["resume-file"]
-    resume = Resume(resume_file)
-    if len(resume.pages) > 2:
-        return "Resume cannot have more than 2 pages", 400
-    return resume.parse()
+    try:
+        resume = Resume(resume_file)
+        return resume.pages
+    except ValueError as e:
+        return e, 400
+    
+@app.post("/api/generate-redacted-pdf")
+def generate_redacted_resume():
+    bounding_boxes = request.get_json()
+    return bounding_boxes

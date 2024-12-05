@@ -5,6 +5,11 @@
     #footer {
         background-color: mat.get-theme-color($theme, primary, 95);
         color: mat.get-theme-color($theme, secondary, 30);
+
+        a {
+          color: mat.get-theme-color($theme, secondary, 30);
+          text-decoration: none
+        }
     }
 }
 

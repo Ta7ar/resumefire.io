@@ -7,12 +7,22 @@ import pytesseract
 import numpy as np
 import cv2
 import pandas as pd
+from typing import TypedDict, Tuple
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
+ParsedPageInfo = TypedDict("ParsedPageInfo", {
+    "dimensions": Tuple[int, int],
+    "boxes": List[Tuple[int, int, int, int]]
+})
+
+PAGE_LIMIT = 2
 class Resume:
     def __init__(self, resume_filepath: werkzeug.datastructures.FileStorage) -> None:
-        self.pages: List[fitz.Page] = fitz.open("pdf", resume_filepath.read())
+        resume: List[fitz.Page] = fitz.open("pdf", resume_filepath.read())
+        if len(resume) > PAGE_LIMIT:
+            raise ValueError("Resume cannot have more than 2 pages")
+        self.pages: List[ParsedPageInfo] = self._parse(resume)
 
     def _get_text_bounding_boxes(self, img: np.ndarray) -> List[Tuple]:
         blurred: np.ndarray = cv2.GaussianBlur(img, (3,3), 0)
@@ -23,11 +33,11 @@ class Resume:
         bounding_boxes = list(image_data.itertuples(index=False, name=None))
         return bounding_boxes
 
-    def parse(self, dpi=200):
+    def _parse(self, pages: List[fitz.Page], dpi=200):
 
         # convert pdf to jpeg and save them into temp memory
         img_bytes_io_array: List[BytesIO] = []
-        for page in self.pages:
+        for page in pages:
             pix: fitz.Pixmap = page.get_pixmap(dpi=dpi)
             img_bytes_io = BytesIO()
             pix.pil_save(img_bytes_io, format="jpeg")

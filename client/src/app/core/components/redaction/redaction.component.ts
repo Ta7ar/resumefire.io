@@ -8,12 +8,12 @@ import { ResumeService } from '../../services/resume.service';
 import { BoundingBox } from '../../services/resume.service';
 import * as pdf from 'pdfjs-dist';
 import { SelectionModel } from '@angular/cdk/collections';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { LoaderComponent } from '../loader/loader.component';
 
 @Component({
   selector: 'app-redaction',
   standalone: true,
-  imports: [MatIconModule, MatButton, NgIf, MatCardModule, NgFor, MatProgressBarModule],
+  imports: [MatIconModule, MatButton, NgIf, MatCardModule, NgFor, LoaderComponent],
   templateUrl: './redaction.component.html',
   styleUrl: './redaction.component.css',
 })
@@ -39,6 +39,7 @@ export class RedactionComponent {
     this.resume = file;
     this.boundingBoxes = null;
     this.displayResume(this.resumeViewCanvas!.nativeElement, this.resume);
+    this.selectedBoundingBoxes.clear();
   }
 
   displayResume(canvas: HTMLCanvasElement, resume: File) {
@@ -67,13 +68,19 @@ export class RedactionComponent {
 
 
   drawBoundingBoxes() {
+    this.loadingBoundingBoxes = true
     this.resumeService.getBoundingBoxes(this.resume!).subscribe((res) => {
-      this.loadingBoundingBoxes = true
       this.boundingBoxes = res[0].boxes;
       let [originalDocHeight, originalDocWidth] = res[0].dimensions;
 
       this.svgViewBox = `0 0 ${originalDocWidth} ${originalDocHeight}`;
     }).add(() => this.loadingBoundingBoxes = false)
+  }
+
+  submitSelectedBoundingBoxes(){
+    this.resumeService.postBoundingBoxes(this.selectedBoundingBoxes.selected).subscribe((res) => {
+      console.log(res)
+    })
   }
 
 }
