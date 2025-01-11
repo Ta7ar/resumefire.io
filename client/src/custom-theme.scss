@@ -3,7 +3,6 @@
 @use './app//pages/home/home-theme.component' as home;
 @use './app/core/layout/footer/footer-theme.component' as footer;
 @use './app/core/components/redaction/redaction-theme.component' as resume;
-@use './app/core/components/bounding-box/bounding-box-theme.component' as bounding-box;
 @include mat.core();
 
 // Note: Color palettes are generated from primary: #ff5757, secondary: #9e005d, tertiary: #ff914d
@@ -142,5 +141,4 @@ $light-theme: mat.define-theme((color: (theme-type: light,
   @include home.theme($light-theme);
   @include footer.theme($light-theme);
   @include resume.theme($light-theme);
-  @include bounding-box.theme($light-theme);
 }

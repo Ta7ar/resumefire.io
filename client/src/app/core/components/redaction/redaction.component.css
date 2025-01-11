@@ -15,8 +15,8 @@ button {
 }
 
 #redacting-loader {
-    position: absolute;
+    /* position: absolute;
     left: calc(50% - 30px);
-    top: calc(50% - 7.5px);
+    top: calc(50% - 7.5px); */
     z-index: 999;
 }

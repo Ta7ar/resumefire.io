@@ -9,6 +9,7 @@ import { BoundingBox } from '../../services/resume.service';
 import * as pdf from 'pdfjs-dist';
 import { SelectionModel } from '@angular/cdk/collections';
 import { LoaderComponent } from '../loader/loader.component';
+import { BaseException } from 'pdfjs-dist/types/src/shared/util';
 
 @Component({
   selector: 'app-redaction',
@@ -70,15 +71,22 @@ export class RedactionComponent {
   drawBoundingBoxes() {
     this.loadingBoundingBoxes = true
     this.resumeService.getBoundingBoxes(this.resume!).subscribe((res) => {
-      this.boundingBoxes = res[0].boxes;
-      let [originalDocHeight, originalDocWidth] = res[0].dimensions;
+      let parsed_page_info = res
+
+      // drawing only the bounding boxes on the first page for now
+      // TODO: support multiple pages/pagination in the future
+      this.boundingBoxes = parsed_page_info[0].boxes;
+      let [originalDocHeight, originalDocWidth] = parsed_page_info[0].dimensions;
 
       this.svgViewBox = `0 0 ${originalDocWidth} ${originalDocHeight}`;
     }).add(() => this.loadingBoundingBoxes = false)
   }
 
   submitSelectedBoundingBoxes(){
-    this.resumeService.postBoundingBoxes(this.selectedBoundingBoxes.selected).subscribe((res) => {
+    if (this.resume === undefined){
+      throw new Error("Resume not selected")
+    }
+    this.resumeService.postBoundingBoxes(this.resume, this.selectedBoundingBoxes.selected).subscribe((res) => {
       console.log(res)
     })
   }
