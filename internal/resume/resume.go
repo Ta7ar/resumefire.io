@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"image"
+	"image/color"
+	"image/draw"
 	"image/png"
 	"io"
 	"log"
@@ -40,7 +42,13 @@ func (e *pageLimitExceedError) Error() string {
 
 var confiThreshold float64 = 66
 
-func pdfToPng(file *multipart.File) ([]byte, error) {
+type resume struct {
+	Image  *image.RGBA
+	Height int
+	Width  int
+}
+
+func NewResume(file *multipart.File) (*resume, error) {
 	buf := new(bytes.Buffer)
 	// Load the PDF file into a byte array.
 	_, err := io.Copy(buf, *file)
@@ -98,51 +106,27 @@ func pdfToPng(file *multipart.File) ([]byte, error) {
 	defer pagesRender.Cleanup()
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ERROR: failed to render pages in DPI: %w", err)
 	}
 
+	image := pagesRender.Result.Image
+	height := image.Bounds().Dy()
+	width := image.Bounds().Dx()
+
+	return &resume{
+		Image:  image,
+		Height: height,
+		Width:  width,
+	}, nil
+}
+
+func (r *resume) Png() ([]byte, error) {
 	buffer := new(bytes.Buffer)
-	if err := png.Encode(buffer, pagesRender.Result.Image); err != nil {
+	if err := png.Encode(buffer, r.Image); err != nil {
 		return nil, err
 	}
 
 	return buffer.Bytes(), nil
-}
-
-func getPngDimensions(pngBytes []byte) (height int, width int, err error) {
-	reader := bytes.NewReader(pngBytes)
-	config, _, err := image.DecodeConfig(reader)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	return config.Height, config.Width, nil
-}
-
-type resumeImage struct {
-	bytes  []byte
-	Height int
-	Width  int
-}
-
-func NewResumeImage(file *multipart.File) (*resumeImage, error) {
-	pngBytes, err := pdfToPng(file)
-
-	if err != nil {
-		return nil, fmt.Errorf("ERROR: failed to convert resume pdf to png format: %w", err)
-	}
-
-	height, width, err := getPngDimensions(pngBytes)
-
-	if err != nil {
-		return nil, fmt.Errorf("ERROR: failed to decode image config: %w", err)
-	}
-
-	return &resumeImage{
-		bytes:  pngBytes,
-		Height: height,
-		Width:  width,
-	}, nil
 }
 
 type pageScan struct {
@@ -150,7 +134,7 @@ type pageScan struct {
 	WordBoundingBoxes [][4]int `json:"boxes"`
 }
 
-func (r *resumeImage) GetWordsBoundingBoxes() (*pageScan, error) {
+func (r *resume) GetWordsBoundingBoxes() (*pageScan, error) {
 	client := gosseract.NewClient()
 	defer client.Close()
 
@@ -158,7 +142,12 @@ func (r *resumeImage) GetWordsBoundingBoxes() (*pageScan, error) {
 		return nil, err
 	}
 
-	if err := client.SetImageFromBytes((*r).bytes); err != nil {
+	pngBytes, err := r.Png()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := client.SetImageFromBytes(pngBytes); err != nil {
 		return nil, err
 	}
 
@@ -182,4 +171,14 @@ func (r *resumeImage) GetWordsBoundingBoxes() (*pageScan, error) {
 	}
 
 	return &res, nil
+}
+
+func (r *resume) Redact(boxes [][4]int) error {
+	brandColor := &image.Uniform{C: color.RGBA{218, 60, 63, 255}}
+	for _, box := range boxes {
+		// 0 -> x, 1 -> y, 2 -> w, 3 -> h
+		rectToDraw := image.Rect(box[0], box[1], box[0]+box[2], box[1]+box[3])
+		draw.Draw(r.Image, rectToDraw, brandColor, image.Point{X: 0, Y: 0}, draw.Src)
+	}
+	return nil
 }
