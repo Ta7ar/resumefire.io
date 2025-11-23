@@ -16,6 +16,11 @@ import (
 	"github.com/klippa-app/go-pdfium/requests"
 	"github.com/klippa-app/go-pdfium/single_threaded"
 	"github.com/otiai10/gosseract/v2"
+
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/gofont/goregular"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/math/fixed"
 )
 
 var pool pdfium.Pool
@@ -41,11 +46,10 @@ func (e *pageLimitExceedError) Error() string {
 }
 
 var confiThreshold float64 = 66
+var brandColor color.RGBA = color.RGBA{218, 60, 63, 255}
 
 type resume struct {
-	Image  *image.RGBA
-	Height int
-	Width  int
+	image.RGBA
 }
 
 func NewResume(file *multipart.File) (*resume, error) {
@@ -110,19 +114,15 @@ func NewResume(file *multipart.File) (*resume, error) {
 	}
 
 	image := pagesRender.Result.Image
-	height := image.Bounds().Dy()
-	width := image.Bounds().Dx()
 
 	return &resume{
-		Image:  image,
-		Height: height,
-		Width:  width,
+		RGBA: *image,
 	}, nil
 }
 
 func (r *resume) Png() ([]byte, error) {
 	buffer := new(bytes.Buffer)
-	if err := png.Encode(buffer, r.Image); err != nil {
+	if err := png.Encode(buffer, r); err != nil {
 		return nil, err
 	}
 
@@ -156,8 +156,11 @@ func (r *resume) GetWordsBoundingBoxes() (*pageScan, error) {
 		return nil, err
 	}
 
+	height := r.Bounds().Dy()
+	width := r.Bounds().Dx()
+
 	res := pageScan{
-		PageDimensions:    [2]int{r.Height, r.Width},
+		PageDimensions:    [2]int{height, width},
 		WordBoundingBoxes: make([][4]int, 0, len(bboxes)),
 	}
 
@@ -174,11 +177,36 @@ func (r *resume) GetWordsBoundingBoxes() (*pageScan, error) {
 }
 
 func (r *resume) Redact(boxes [][4]int) error {
-	brandColor := &image.Uniform{C: color.RGBA{218, 60, 63, 255}}
 	for _, box := range boxes {
 		// 0 -> x, 1 -> y, 2 -> w, 3 -> h
 		rectToDraw := image.Rect(box[0], box[1], box[0]+box[2], box[1]+box[3])
-		draw.Draw(r.Image, rectToDraw, brandColor, image.Point{X: 0, Y: 0}, draw.Src)
+		draw.Draw(r, rectToDraw, image.NewUniform(brandColor), image.Point{X: 0, Y: 0}, draw.Src)
 	}
+	return nil
+}
+
+func (r *resume) AddLabel(x int, y int, label string) error {
+
+	f, err := opentype.Parse(goregular.TTF)
+	if err != nil {
+		return err
+	}
+
+	face, err := opentype.NewFace(f, &opentype.FaceOptions{
+		Size: float64(24), // Size of font in pt
+		DPI:  72,
+	})
+	if err != nil {
+		return err
+	}
+
+	point := fixed.Point26_6{fixed.I(x), fixed.I(y)}
+	d := &font.Drawer{
+		Dst:  r,
+		Src:  image.NewUniform(brandColor),
+		Face: face,
+		Dot:  point,
+	}
+	d.DrawString(label)
 	return nil
 }

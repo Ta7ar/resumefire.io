@@ -3,8 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"image/png"
 	"log"
 	"net/http"
+	"os"
 	"resume-fire/internal/resume"
 )
 
@@ -83,9 +85,20 @@ func redactBoundingBoxesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := resume.Redact(selectedBoxes); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	resume.Redact(selectedBoxes)
+
+	height := resume.Bounds().Dy()
+
+	resume.AddLabel(50, height-50, "anonymized using resumefire.io")
+
+	outputFile, err := os.Create("redacted.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer outputFile.Close()
+
+	if err := png.Encode(outputFile, resume); err != nil {
+		log.Fatal(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
