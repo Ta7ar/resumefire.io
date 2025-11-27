@@ -1,6 +1,0 @@
-FRONTEND:
-* Keyboard accessability for selecting boxes to redact
-* Loading indicator for redaction
-
-BACKEND:
-* Accept selected boxes for redaction, redact said boxes, watermark with logo 

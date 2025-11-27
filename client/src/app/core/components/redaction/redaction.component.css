@@ -1,22 +1,33 @@
 button {
-    margin: 0.5rem;
+  margin: 0.5rem;
 }
 
 #resume-view-container {
-    position: relative;
+  position: relative;
+  opacity: 0;
+  height: 0;
+  visibility: collapse;
+  transition: opacity 0.3s ease-in, visibility 0s linear 0.3s;
+}
+
+#resume-view-container.expanded {
+  visibility: visible;
+  height: 100%;
+  opacity: 1;
+  transition: opacity 0.3s ease-in, visibility 0s linear 0s; 
 }
 
 #bounding-boxes {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 #redacting-loader {
-    /* position: absolute;
+  /* position: absolute;
     left: calc(50% - 30px);
     top: calc(50% - 7.5px); */
-    z-index: 999;
+  z-index: 999;
 }

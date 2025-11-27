@@ -360,11 +360,11 @@ export class ResumeService {
   // resume?: File;
   constructor(private httpClient: HttpClient) {}
 
-  getBoundingBoxes(resume: File): Observable<{ dimensions: Dimensions, boxes: BoundingBox[] }[]> {
+  getBoundingBoxes(resume: File): Observable<{ dimensions: Dimensions, boxes: BoundingBox[] }> {
     const formdata = new FormData();
     formdata.append('resume-file', resume);
-    return this.httpClient.post<{ dimensions: Dimensions, boxes: BoundingBox[] }[]>(
-      "/api/generate-bounding-boxes", formdata
+    return this.httpClient.post<{ dimensions: Dimensions, boxes: BoundingBox[] }>(
+      "/api/resume/bounding-boxes/generate", formdata
     );
   }
 
@@ -373,7 +373,7 @@ export class ResumeService {
     formdata.append('resume-file', resume);
     formdata.append('selected-bounding-boxes', JSON.stringify(boundingBoxes));
     return this.httpClient.post(
-      "/api/generate-redacted-pdf", formdata
+      "/api/resume/bounding-boxes/redact", formdata
     )
   }
 }

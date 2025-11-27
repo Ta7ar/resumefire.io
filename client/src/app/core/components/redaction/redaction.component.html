@@ -1,6 +1,6 @@
 <div>
   <div style="text-align: center">
-    <div id="resume-view-container">
+    <div id="resume-view-container" [class.expanded]="resume">
       @if (boundingBoxes && boundingBoxes.length > 0){
       <svg
         [attr.viewBox]="svgViewBox"

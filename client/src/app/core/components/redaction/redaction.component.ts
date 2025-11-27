@@ -75,8 +75,8 @@ export class RedactionComponent {
 
       // drawing only the bounding boxes on the first page for now
       // TODO: support multiple pages/pagination in the future
-      this.boundingBoxes = parsed_page_info[0].boxes;
-      let [originalDocHeight, originalDocWidth] = parsed_page_info[0].dimensions;
+      this.boundingBoxes = parsed_page_info.boxes;
+      let [originalDocHeight, originalDocWidth] = parsed_page_info.dimensions;
 
       this.svgViewBox = `0 0 ${originalDocWidth} ${originalDocHeight}`;
     }).add(() => this.loadingBoundingBoxes = false)
