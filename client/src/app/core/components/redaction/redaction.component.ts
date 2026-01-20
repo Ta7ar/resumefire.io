@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatButton } from '@angular/material/button';
-import { NgFor, NgIf } from '@angular/common';
+
 import { MatDialog } from '@angular/material/dialog';
 import { ResumeService } from '../../services/resume.service';
 import { BoundingBox } from '../../services/resume.service';
@@ -13,7 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
     selector: 'app-redaction',
-    imports: [MatIconModule, MatButton, NgIf, MatCardModule, NgFor, LoaderComponent],
+    imports: [MatIconModule, MatButton, MatCardModule, LoaderComponent],
     templateUrl: './redaction.component.html',
     styleUrl: './redaction.component.css',
     standalone: true
