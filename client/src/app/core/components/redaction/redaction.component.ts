@@ -12,11 +12,11 @@ import { LoaderComponent } from '../loader/loader.component';
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-  selector: 'app-redaction',
-  standalone: true,
-  imports: [MatIconModule, MatButton, NgIf, MatCardModule, NgFor, LoaderComponent],
-  templateUrl: './redaction.component.html',
-  styleUrl: './redaction.component.css',
+    selector: 'app-redaction',
+    imports: [MatIconModule, MatButton, NgIf, MatCardModule, NgFor, LoaderComponent],
+    templateUrl: './redaction.component.html',
+    styleUrl: './redaction.component.css',
+    standalone: true
 })
 export class RedactionComponent {
   readonly dialog = inject(MatDialog);

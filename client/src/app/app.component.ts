@@ -7,11 +7,11 @@ import * as pdf from 'pdfjs-dist';
 pdf.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.mjs';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+    selector: 'app-root',
+    imports: [RouterOutlet, HeaderComponent, FooterComponent],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.css',
+    standalone: true
 })
 export class AppComponent {
 }

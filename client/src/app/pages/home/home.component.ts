@@ -5,11 +5,11 @@ import {FlexLayoutModule} from "@angular/flex-layout";
 import { RedactionComponent } from '../../core/components/redaction/redaction.component';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [MatButton, MatIcon, FlexLayoutModule, RedactionComponent],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+    selector: 'app-home',
+    imports: [MatButton, MatIcon, FlexLayoutModule, RedactionComponent],
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss',
+    standalone: true
 })
 export class HomeComponent {
 }
