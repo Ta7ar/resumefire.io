@@ -3,7 +3,8 @@
 @use './app//pages/home/home-theme.component' as home;
 @use './app/core/layout/footer/footer-theme.component' as footer;
 @use './app/core/components/redaction/redaction-theme.component' as resume;
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 // Note: Color palettes are generated from primary: #ff5757, secondary: #9e005d, tertiary: #ff914d
 $_palettes: (
