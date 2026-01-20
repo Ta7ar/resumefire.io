@@ -9,7 +9,7 @@ import { BoundingBox } from '../../services/resume.service';
 import * as pdf from 'pdfjs-dist';
 import { SelectionModel } from '@angular/cdk/collections';
 import { LoaderComponent } from '../loader/loader.component';
-import { BaseException } from 'pdfjs-dist/types/src/shared/util';
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'app-redaction',
@@ -28,7 +28,8 @@ export class RedactionComponent {
   boundingBoxes: BoundingBox[] | null = null;
   selectedBoundingBoxes: SelectionModel<BoundingBox> = new SelectionModel(true);
   loadingBoundingBoxes: boolean = false;
-
+  loadingRedactedPdf: boolean = false;
+  private errorSnackbar = inject(MatSnackBar)
   constructor(
     public resumeService: ResumeService
   ) { }
@@ -70,25 +71,48 @@ export class RedactionComponent {
 
   drawBoundingBoxes() {
     this.loadingBoundingBoxes = true
-    this.resumeService.getBoundingBoxes(this.resume!).subscribe((res) => {
-      let parsed_page_info = res
+    this.resumeService.getBoundingBoxes(this.resume!).subscribe({
+      next: (res) => {
+        let parsed_page_info = res
+        // drawing only the bounding boxes on the first page for now
+        // TODO: support multiple pages/pagination in the future
+        this.boundingBoxes = parsed_page_info.boxes;
+        let [originalDocHeight, originalDocWidth] = parsed_page_info.dimensions;
 
-      // drawing only the bounding boxes on the first page for now
-      // TODO: support multiple pages/pagination in the future
-      this.boundingBoxes = parsed_page_info.boxes;
-      let [originalDocHeight, originalDocWidth] = parsed_page_info.dimensions;
+        this.svgViewBox = `0 0 ${originalDocWidth} ${originalDocHeight}`;
+        this.loadingBoundingBoxes = false
+      },
+      error: (err) => {
+        this.loadingBoundingBoxes = false
+        this.errorSnackbar.open("Something went wrong, please try again later.", "Close", {
+          duration: 5 * 1000
+        })
+      }
+    })
+    // this.resumeService.getBoundingBoxes(this.resume!).subscribe((res) => {
+    //   let parsed_page_info = res
 
-      this.svgViewBox = `0 0 ${originalDocWidth} ${originalDocHeight}`;
-    }).add(() => this.loadingBoundingBoxes = false)
+    //   // drawing only the bounding boxes on the first page for now
+    //   // TODO: support multiple pages/pagination in the future
+    //   this.boundingBoxes = parsed_page_info.boxes;
+    //   let [originalDocHeight, originalDocWidth] = parsed_page_info.dimensions;
+
+    //   this.svgViewBox = `0 0 ${originalDocWidth} ${originalDocHeight}`;
+    // }).add(() => this.loadingBoundingBoxes = false)
   }
 
-  submitSelectedBoundingBoxes(){
-    if (this.resume === undefined){
+  submitSelectedBoundingBoxes() {
+    if (this.resume === undefined) {
       throw new Error("Resume not selected")
     }
-    this.resumeService.postBoundingBoxes(this.resume, this.selectedBoundingBoxes.selected).subscribe((res) => {
-      console.log(res)
-    })
+    this.loadingRedactedPdf = true;
+    this.resumeService.postBoundingBoxes(this.resume, this.selectedBoundingBoxes.selected).subscribe({
+      next: (res) => {
+        this.loadingRedactedPdf = false;
+        console.log(res)
+      }
+    }
+    )
   }
 
 }
