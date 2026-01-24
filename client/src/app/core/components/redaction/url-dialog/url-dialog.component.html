@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>Link to your anonymized resume</h2>
+<mat-dialog-content>
+  <p>View your resume, download or share!</p>
+  <div>
+    <mat-form-field style="width: 100%">
+      <input matInput [value]="data.url" readonly />
+    </mat-form-field>
+    <div style="display: flex; align-items: center">
+      <a [href]="data.url" target="_blank" rel="noopener noreferrer">
+        <button matIconButton>
+          <mat-icon>open_in_new</mat-icon>
+        </button>
+      </a>
+
+      <button matIconButton (click)="download()">
+        <mat-icon>download</mat-icon>
+      </button>
+
+      <button matIconButton [cdkCopyToClipboard]="data.url">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+      <p style="padding-left: 8px; border-left: 1px dashed grey">
+        Post & get feedback directly on <a [href]="redditSubmitUrl()" target="_blank" rel="noopener noreferrer" style="color: #b6212a;">Reddit</a>
+      </p>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button matButton matDialogClose>Done</button>
+</mat-dialog-actions>

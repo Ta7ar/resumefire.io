@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { S3UrlDialogComponent } from './s3-url-dialog.component';
+import { UrlDialogComponent } from './url-dialog.component';
 
-describe('S3UrlDialogComponent', () => {
-  let component: S3UrlDialogComponent;
-  let fixture: ComponentFixture<S3UrlDialogComponent>;
+describe('UrlDialogComponent', () => {
+  let component: UrlDialogComponent;
+  let fixture: ComponentFixture<UrlDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [S3UrlDialogComponent]
+      imports: [UrlDialogComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(S3UrlDialogComponent);
+    fixture = TestBed.createComponent(UrlDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
