@@ -1,11 +1,20 @@
-<mat-toolbar id="navbar"  class="fixed-navbar">
-    <a id="logo" routerLink="/" aria-label="Resume Fire home button link">
-        <div style="display: flex; align-items: center; gap: 0.25rem;">
-            <img ngSrc="logo.svg" width="25" height="25" priority>
-            <p id="title">resume fire</p>
-        </div>
-    </a>
-    <div>
-        <button mat-button routerLink="/">How it works</button>
+<mat-toolbar id="navbar" class="fixed-navbar">
+  <a id="logo" routerLink="/" aria-label="Resume Fire home button link">
+    <div style="display: flex; align-items: center; gap: 0.25rem">
+      <img ngSrc="logo.svg" width="25" height="25" priority />
+      <p id="title">resume fire</p>
     </div>
+  </a>
+  <div style="gap: 0.5rem; display: flex">
+    <button mat-button routerLink="/">How it works</button>
+    <button
+      matButton="tonal"
+      [disabled]="objectUrlStorageService.urlEntriesCount() === 0"
+      [matBadge]="objectUrlStorageService.urlEntriesCount()"
+      [matBadgeHidden]="objectUrlStorageService.urlEntriesCount() === 0"
+      (click)="openSidenav()"
+    >
+      Portfolio
+    </button>
+  </div>
 </mat-toolbar>

@@ -1,3 +1,11 @@
-<app-header></app-header>
-<router-outlet />
-<app-footer></app-footer>
+<mat-sidenav-container>
+  <mat-sidenav #sidenav position="end" mode="over" [autoFocus]="false">
+    <app-sidebar (clickClose)="closeSidenav()"></app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <app-header (dashboardClick)="openSidenav()"></app-header>
+    <router-outlet />
+    <app-footer></app-footer>
+  </mat-sidenav-content>
+</mat-sidenav-container>

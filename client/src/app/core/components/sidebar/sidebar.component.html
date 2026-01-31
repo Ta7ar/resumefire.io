@@ -1,0 +1,67 @@
+<div style="padding: 16px 32px">
+  <!-- <header style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed grey;"> -->
+
+  <!-- <button matIconButton (click)="closeSidenav()">
+        <mat-icon>close</mat-icon>
+    </button> -->
+  <section style="padding: 0">
+    <h2 style="margin-bottom: 0">
+      Portfolio <mat-icon>library_books</mat-icon>
+    </h2>
+    <sub>Links to previously anonymized resumes</sub>
+    <!-- @for (
+      urlEntry of objectUrlStorageService.urlEntries();
+      track urlEntry.url
+      ) {
+    <mat-card appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>Created on {{ urlEntry.created?.toLocaleDateString() }}</mat-card-title>
+            <mat-card-subtitle>Link expires in {{ calcDaysTillExpire(urlEntry.expiry)}} day(s)</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-actions>
+            <a [href]="urlEntry.url" target="_blank" rel="noopener noreferrer">
+              <button matIconButton>
+                <mat-icon>open_in_new</mat-icon>
+              </button>
+            </a>
+
+            <button matIconButton>
+              <mat-icon>download</mat-icon>
+            </button>
+
+            <button matIconButton [cdkCopyToClipboard]="urlEntry.url">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>} -->
+    <mat-list role="list">
+      @for (
+      urlEntry of objectUrlStorageService.urlEntries();
+      track urlEntry.url
+      ) {
+        
+      <mat-list-item style="margin-bottom: 1rem;">
+        <span matListItemTitle>Created on {{ urlEntry.created?.toLocaleString() }}</span>
+        <span matListItemLine>
+          <sub>Link expires in {{ calcDaysTillExpire(urlEntry.expiry)}} day(s)</sub>
+        </span>
+        <span matListItemLine style="margin-left: -10px;">
+          <a [href]="urlEntry.url" target="_blank" rel="noopener noreferrer">
+            <button matIconButton>
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+          </a>
+
+          <button matIconButton (click)="objectUrlStorageService.downloadObject(urlEntry.url)">
+            <mat-icon>download</mat-icon>
+          </button>
+
+          <button matIconButton [cdkCopyToClipboard]="urlEntry.url">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </span>
+      </mat-list-item>
+      }
+    </mat-list>
+  </section>
+</div>

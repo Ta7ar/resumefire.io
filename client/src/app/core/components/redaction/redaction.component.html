@@ -26,7 +26,7 @@
       </svg>
       }
       <canvas id="resume-view" #resumeView></canvas>
-      @if(loadingBoundingBoxes || loadingRedactedPdf){
+      @if(loadingBoundingBoxes() || loadingRedactedPdf()){
       <app-loader id="redacting-loader"></app-loader>
       }
     </div>
@@ -48,7 +48,7 @@
     @if (boundingBoxes && boundingBoxes.length){
     <button
       mat-stroked-button
-      [disabled]="!selectedBoundingBoxes.selected.length || loadingRedactedPdf"
+      [disabled]="!selectedBoundingBoxes.selected.length || loadingRedactedPdf()"
       (click)="submitSelectedBoundingBoxes()"
     >
       generate redacted pdf
@@ -57,7 +57,7 @@
     } @else{
     <button
       mat-stroked-button
-      [disabled]="!resume || loadingBoundingBoxes"
+      [disabled]="!resume || loadingBoundingBoxes()"
       (click)="drawBoundingBoxes()"
     >
       start anonymizing

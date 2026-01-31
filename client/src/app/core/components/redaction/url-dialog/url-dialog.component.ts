@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, Renderer2 } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
-  MatDialog,
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
@@ -12,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
 import { MatInputModule } from '@angular/material/input';
 import { ClipboardModule } from '@angular/cdk/clipboard'
-import { ResumeService } from '../../../services/resume.service';
+import { ObjectUrlStorageService } from '../../../services/object-url-storage.service';
 
 export interface UrlDialogData {
   url: string
@@ -30,19 +29,10 @@ export interface UrlDialogData {
 export class UrlDialogComponent {
   readonly dialogRef = inject(MatDialogRef<UrlDialogComponent>);
   readonly data = inject<UrlDialogData>(MAT_DIALOG_DATA);
-  readonly resumeService = inject<ResumeService>(ResumeService)
-  readonly renderer = inject<Renderer2>(Renderer2)
+  readonly objectUrlService = inject(ObjectUrlStorageService)
 
   download() {
-    this.resumeService.download(this.data.url).subscribe((blob) => {
-      const objectUrl = URL.createObjectURL(blob)
-      const a = this.renderer.createElement('a')
-      a.href = objectUrl
-      a.download = 'resume_fire_redaction.png'
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(objectUrl)
-    })
+    this.objectUrlService.downloadObject(this.data.url);
   }
 
   redditSubmitUrl() {

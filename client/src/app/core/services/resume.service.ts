@@ -10,8 +10,7 @@ export type BoundingBox = [x: number, y: number, w: number, h: number];
   providedIn: 'root',
 })
 export class ResumeService {
-  // resume?: File;
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) { }
 
   getBoundingBoxes(resume: File): Observable<{ dimensions: Dimensions, boxes: BoundingBox[] }> {
     const formdata = new FormData();
@@ -21,14 +20,18 @@ export class ResumeService {
     );
   }
 
-  postBoundingBoxes(resume: File, boundingBoxes: BoundingBox[]): Observable<HttpResponse<any>>{
+  postBoundingBoxes(resume: File, boundingBoxes: BoundingBox[]): Observable<HttpResponse<any>> {
     const formdata = new FormData();
     formdata.append('resume-file', resume);
     formdata.append('selected-bounding-boxes', JSON.stringify(boundingBoxes));
     return this.httpClient.post(
       "/api/resume/bounding-boxes/redact", formdata, {
-        observe: "response"
-      }
+      observe: "response"
+    }
     )
+  }
+
+  download(url: string): Observable<Blob> {
+    return this.httpClient.get(url, { responseType: "blob" })
   }
 }
