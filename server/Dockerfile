@@ -44,6 +44,8 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o /usr/local/bin/app
 
 FROM debian:bookworm-slim
 
+RUN useradd -ms /bin/bash appuser
+
 WORKDIR /app
 
 ENV PDFIUM_PATH=/opt/pdfium
@@ -60,8 +62,9 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=build ${PDFIUM_PATH} ${PDFIUM_PATH}
+COPY --chown=appuser:appuser --chmod=755 --from=build ${PDFIUM_PATH} ${PDFIUM_PATH}
+COPY --chown=appuser:appuser --chmod=755 --from=build /usr/local/bin/app /usr/local/bin/app
 
-COPY --from=build /usr/local/bin/app /usr/local/bin/app
+USER appuser
 
 CMD ["/usr/local/bin/app"]

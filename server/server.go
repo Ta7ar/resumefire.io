@@ -1,14 +1,79 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
-	"image/png"
 	"log"
 	"net/http"
 	"os"
 	"resume-fire/internal/resume"
+	"time"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/google/uuid"
 )
+
+var s3Client *s3.Client
+
+func init() {
+	accessKey := os.Getenv("SPACES_KEY")
+	secretKey := os.Getenv("SPACES_SECRET")
+	region := "nyc3"
+	endpoint := fmt.Sprintf("https://%s.digitaloceanspaces.com", region)
+
+	credsProvider := credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
+
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion("nyc3"),
+		// config.WithEndpointResolverWithOptions(customResolver),
+		config.WithCredentialsProvider(credsProvider))
+	if err != nil {
+		panic(fmt.Sprintf("failed loading config, %v", err))
+	}
+	s3Client = s3.NewFromConfig(cfg, func(o *s3.Options) {
+		o.BaseEndpoint = aws.String(endpoint)
+		o.UsePathStyle = *aws.Bool(true)
+	})
+}
+
+func uploadImageToBucket(resume *resume.Resume, prefix string) (*string, error) {
+	resumePng, err := resume.Png()
+	if err != nil {
+		return nil, fmt.Errorf("ERROR: failed to convert resume to PNG: %w", err)
+	}
+	objectKey := aws.String(prefix + "/" + uuid.New().String())
+	fmt.Sprintf("Uploading image %s", *objectKey)
+	uploader := manager.NewUploader(s3Client)
+	_, err = uploader.Upload(context.TODO(), &s3.PutObjectInput{
+		Bucket:      aws.String("resume-fire"),
+		Key:         objectKey,
+		Body:        bytes.NewReader(resumePng),
+		ContentType: aws.String("image/png"),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("ERROR: failed to upload image: %w", err)
+	}
+	return objectKey, nil
+}
+
+func getPresignedUrl(objectKey *string) (*string, error) {
+	presignClient := s3.NewPresignClient(s3Client)
+	presignedUrl, err := presignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: aws.String("resume-fire"),
+		Key:    objectKey,
+	}, s3.WithPresignExpires(time.Hour*72))
+
+	if err != nil {
+		return nil, fmt.Errorf("ERROR: failed to get presigned URL for object %s, %w", *objectKey, err)
+	}
+	return &presignedUrl.URL, nil
+}
 
 func generateBoundingBoxesHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -84,25 +149,26 @@ func redactBoundingBoxesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	resume.Redact(selectedBoxes)
-
 	height := resume.Bounds().Dy()
 
 	resume.AddLabel(50, height-50, "anonymized using resumefire.io")
 
-	outputFile, err := os.Create("redacted.png")
+	objectKey, err := uploadImageToBucket(resume, "guest")
 	if err != nil {
-		log.Fatal(err)
-	}
-	defer outputFile.Close()
-
-	if err := png.Encode(outputFile, resume); err != nil {
-		log.Fatal(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
+	presignedUrl, err := getPresignedUrl(objectKey)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Location", *presignedUrl)
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func main() {

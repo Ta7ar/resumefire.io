@@ -48,11 +48,11 @@ func (e *pageLimitExceedError) Error() string {
 var confiThreshold float64 = 66
 var brandColor color.RGBA = color.RGBA{218, 60, 63, 255}
 
-type resume struct {
+type Resume struct {
 	image.RGBA
 }
 
-func NewResume(file *multipart.File) (*resume, error) {
+func NewResume(file *multipart.File) (*Resume, error) {
 	buf := new(bytes.Buffer)
 	// Load the PDF file into a byte array.
 	_, err := io.Copy(buf, *file)
@@ -77,7 +77,7 @@ func NewResume(file *multipart.File) (*resume, error) {
 		return nil, err
 	}
 
-	// TODO: support 2 page resumes in the future
+	// TODO: support 2 page Resumes in the future
 	if getPageCount.PageCount > 1 {
 		return nil, &pageLimitExceedError{
 			pageCount: getPageCount.PageCount,
@@ -115,12 +115,12 @@ func NewResume(file *multipart.File) (*resume, error) {
 
 	image := pagesRender.Result.Image
 
-	return &resume{
+	return &Resume{
 		RGBA: *image,
 	}, nil
 }
 
-func (r *resume) Png() ([]byte, error) {
+func (r *Resume) Png() ([]byte, error) {
 	buffer := new(bytes.Buffer)
 	if err := png.Encode(buffer, r); err != nil {
 		return nil, err
@@ -134,7 +134,7 @@ type pageScan struct {
 	WordBoundingBoxes [][4]int `json:"boxes"`
 }
 
-func (r *resume) GetWordsBoundingBoxes() (*pageScan, error) {
+func (r *Resume) GetWordsBoundingBoxes() (*pageScan, error) {
 	client := gosseract.NewClient()
 	defer client.Close()
 
@@ -176,7 +176,7 @@ func (r *resume) GetWordsBoundingBoxes() (*pageScan, error) {
 	return &res, nil
 }
 
-func (r *resume) Redact(boxes [][4]int) error {
+func (r *Resume) Redact(boxes [][4]int) error {
 	for _, box := range boxes {
 		// 0 -> x, 1 -> y, 2 -> w, 3 -> h
 		rectToDraw := image.Rect(box[0], box[1], box[0]+box[2], box[1]+box[3])
@@ -185,7 +185,7 @@ func (r *resume) Redact(boxes [][4]int) error {
 	return nil
 }
 
-func (r *resume) AddLabel(x int, y int, label string) error {
+func (r *Resume) AddLabel(x int, y int, label string) error {
 
 	f, err := opentype.Parse(goregular.TTF)
 	if err != nil {
