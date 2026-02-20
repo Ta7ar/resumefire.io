@@ -1,27 +1,69 @@
-@use 'sass:map';
-@use '@angular/material' as mat;
+@use "sass:map";
+@use "@angular/material" as mat;
 
 @mixin color($theme) {
-    section {
-      padding: 2rem 16px;
-    }
-    #banner {
-        #title {
-          color: mat.get-theme-color($theme, primary, 50);
-        }
+  section {
+    padding: 2rem 16px;
+  }
+  #title {
+    color: mat.get-theme-color($theme, primary, 50);
+  }
 
-        .large-text {
-          font-weight: 600;
-          font-size: xx-large;
-          margin: 0;
-        }
+  .large-text {
+    font-weight: 600;
+    font-size: xx-large;
+    margin: 0;
+  }
+  #banner {
+    padding-bottom: 0;
+
+    #pdf-markup {
+      color: mat.get-theme-color($theme, primary, 30);
     }
 
-    .wave .shape-fill {
-        fill: mat.get-theme-color($theme, primary, 50);
+    #png-markup {
+      color: mat.get-theme-color($theme, secondary, 30);
     }
+  }
+
+  #open-source-link {
+    color: mat.get-theme-color($theme, neutral, 50);
+    border-bottom: 1px dashed mat.get-theme-color($theme, neutral, 50);
+  }
+
+  #how-it-works {
+    display: flex;
+    justify-content: center;
+
+    h1 {
+      color: mat.get-theme-color($theme, primary, 30);
+      text-align: center;
+      // text-decoration: underline mat.get-theme-color($theme, primary, 30) dotted;
+    }
+
+    p {
+      color: mat.get-theme-color($theme, secondary, 30);
+      font-size: large;
+      text-align: center;
+    }
+
+    span.numbered-bullet {
+      display: inline-block;
+      height: 1rem;
+      width: 1rem;
+      padding: 0.5rem;
+      border-radius: 2rem;
+      background-color: mat.get-theme-color($theme, primary, 50);
+      color: white;
+      margin-right: 8px;
+      font-size: larger;
+    }
+
+    ul li {
+      margin-bottom: 8px;
+    }
+  }
 }
-
 
 @mixin theme($theme) {
   @if mat.theme-has($theme, color) {

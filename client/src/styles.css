@@ -8,7 +8,7 @@ body {
   margin: 0;
 }
 main {
-  min-height: calc(100vh - 128px);
+  min-height: calc(100vh - 110.5px - 63.99px);
 }
 
 * {

@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
     selector: 'app-footer',
-    imports: [RouterLink, RouterLinkActive],
+    imports: [],
     templateUrl: './footer.component.html',
     styleUrl: './footer.component.scss',
     standalone: true,

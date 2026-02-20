@@ -44,6 +44,8 @@ export class RedactionComponent {
   resume?: File;
   boundingBoxes: BoundingBox[] | null = null;
   selectedBoundingBoxes: SelectionModel<BoundingBox> = new SelectionModel(true);
+
+  pageCountExceedLimit = signal<boolean>(false);
   loadingBoundingBoxes = signal<boolean>(false);
   loadingRedactedPdf = signal<boolean>(false);
   private resumeService = inject(ResumeService);
@@ -52,7 +54,6 @@ export class RedactionComponent {
   onResumeSelected(event: any) {
     const file: File = event.target.files[0];
     if (!file) throw Error('No resume selected');
-    // this.resumeService.resume = file;
     this.resume = file;
     this.boundingBoxes = null;
     this.displayResume(this.resumeViewCanvas!.nativeElement, this.resume);
@@ -64,11 +65,16 @@ export class RedactionComponent {
     if (!context) throw new Error('canvas context is null or undefined');
 
     let fileReader = new FileReader();
+    var self = this;
     fileReader.onload = function () {
       let typedarray = new Uint8Array(fileReader.result as ArrayBuffer);
       let pdfjsLoadingTask = pdf.getDocument(typedarray);
-
       pdfjsLoadingTask.promise.then((pdf) => {
+        if (pdf.numPages > 1){
+          self.pageCountExceedLimit.set(true)
+        } else {
+          self.pageCountExceedLimit.set(false)
+        }
         pdf.getPage(1).then(function (page) {
           // canvas.style.height = "360px";
           canvas.style.width = '100%';

@@ -1,12 +1,41 @@
 <main>
-    <section id="banner" >
-        <p id="title" class="large-text">resume fire!</p>
-        <p class="large-text">anonymize your resume</p>
-        <sub>upload your resume, select whatever you want to redact, generate an anonymized version of your resume,
-            host, share, get feedback ~ all for free!</sub>
+    <section id="banner">
+        <h1 id="title" class="large-text">resume fire!</h1>
+        <p class="large-text">Anonymize your resume</p>
+
+        <p>Upload your resume <span id="pdf-markup">(PDF)</span>, select whatever you want to redact, generate an
+            anonymized version of your resume <span id="png-markup">(→ PNG)</span>,
+            host, share, get feedback ~ all for free!</p>
+
+        <div style="display: flex; justify-content: center;">
+            <p style="text-align: center; width: fit-content;" id="open-source-link">
+            We're open source!
+            <iframe src="https://ghbtns.com/github-btn.html?user=Ta7ar&repo=resumefire.io&type=star"
+                frameborder="0" scrolling="0" height="20" width="50" title="GitHub"></iframe>
+
+        </p>
+        </div>
+        
     </section>
-    <section >
+    <section>
         <app-redaction />
+    </section>
+
+    <section id="how-it-works">
+        <div>
+            <h1 class="large-text">
+                How it works
+            </h1>
+            <ul style="list-style: none;">
+                <li><span class="numbered-bullet">1</span>Select your resume (PDF)</li>
+                <li><span class="numbered-bullet">2</span>Hit anonymize</li>
+                <li><span class="numbered-bullet">3</span>Select text boxes/ words you would like to
+                    redact</li>
+                <li><span class="numbered-bullet">4</span>Generate an anonymized PNG of your
+                    resume!</li>
+                </ul>
+            <p style="font-weight: 500;">It's that simple.</p>
+        </div>
     </section>
 
     <!-- <div id="upload-form-container">

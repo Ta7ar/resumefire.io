@@ -8,7 +8,8 @@
 
         a {
           color: mat.get-theme-color($theme, secondary, 30);
-          text-decoration: none
+          text-decoration: none;
+          margin-right: 1rem;
         }
     }
 }
