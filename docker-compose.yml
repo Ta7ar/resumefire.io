@@ -16,6 +16,13 @@ services:
       - "8080:8080"
     networks:
       - app-network
+    environment:
+      - AWS_ACCESS_KEY_ID=${SPACES_KEY}
+      - AWS_SECRET_ACCESS_KEY=${SPACES_SECRET}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - AWS_REGION=${AWS_DEFAULT_REGION}
+      - SPACES_KEY=${SPACES_KEY}
+      - SPACES_SECRET=${SPACES_SECRET}
 
 networks:
   app-network:
