@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -93,13 +94,17 @@ func generateBoundingBoxesHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	resume, err := resume.NewResume(&file)
+	resumeFile, err := resume.NewResume(&file)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if errors.Is(err, resume.PageLimitExceedError) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 
-	boundingBoxes, err := resume.GetWordsBoundingBoxes()
+	boundingBoxes, err := resumeFile.GetWordsBoundingBoxes()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

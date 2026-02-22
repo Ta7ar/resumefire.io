@@ -2,6 +2,7 @@ package resume
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -37,13 +38,15 @@ func init() {
 	}
 }
 
-type pageLimitExceedError struct {
-	pageCount int
-}
+var PageLimitExceedError = errors.New("only single page resumes are supported")
 
-func (e *pageLimitExceedError) Error() string {
-	return fmt.Sprintf("number of pages (%d) exceeds limit (2)", e.pageCount)
-}
+// type PageLimitExceedError struct {
+// 	pageCount int
+// }
+
+// func (e *PageLimitExceedError) Error() string {
+// 	return fmt.Sprintf("number of pages (%d) exceeds limit (1)", e.pageCount)
+// }
 
 var confiThreshold float64 = 66
 var brandColor color.RGBA = color.RGBA{218, 60, 63, 255}
@@ -79,9 +82,7 @@ func NewResume(file *multipart.File) (*Resume, error) {
 
 	// TODO: support 2 page Resumes in the future
 	if getPageCount.PageCount > 1 {
-		return nil, &pageLimitExceedError{
-			pageCount: getPageCount.PageCount,
-		}
+		return nil, PageLimitExceedError
 	}
 
 	// Always close the document, this will release its resources.
