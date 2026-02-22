@@ -27,7 +27,6 @@ import { finalize } from 'rxjs';
     MatButton,
     MatCardModule,
     LoaderComponent,
-    UrlDialogComponent,
   ],
   templateUrl: './redaction.component.html',
   styleUrl: './redaction.component.css',

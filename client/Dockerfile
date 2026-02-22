@@ -19,5 +19,8 @@ COPY ./dist/app/browser/ /usr/share/nginx/html
 
 # Copy the custom Nginx configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
-EXPOSE 80
+COPY ./ssl/resumefire.io.pem /etc/nginx/ssl/resumefire.io.pem
+COPY ./ssl/resumefire.io.key /etc/nginx/ssl/resumefire.key.key
+
+EXPOSE 80 443
 CMD ["nginx", "-g", "daemon off;"]
