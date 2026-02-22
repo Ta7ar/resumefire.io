@@ -51,7 +51,7 @@ export class ObjectUrlStorageService {
   }
 
   saveObjectUrl(url: string) {
-    const key = this.OBJECT_KEY_PREFIX + crypto.randomUUID();
+    const key = this.OBJECT_KEY_PREFIX + this.urlEntriesCount + 1;
     let expiry = new Date();
     expiry.setDate(new Date().getDate() + 2);
     const newUrlEntry = {
