@@ -7,9 +7,6 @@ body {
 body {
   margin: 0;
 }
-main {
-  min-height: calc(100vh - 110.5px - 63.99px);
-}
 
 * {
   font-family: DM Sans, sans-serif !important;
@@ -20,16 +17,6 @@ main {
   font-family: "Material Icons" !important;
 }
 
-/* @media (min-width: 960px) {
-  .global-gutter {
-    padding-right: 100px;
-    padding-left: 100px;
-  }
-} */
-
-/* @media (max-width: 959.98px) {
-  .global-gutter {
-    padding-right: 16px;
-    padding-left: 16px;
-  }
-} */
+.vertical-fill {
+  flex: 1 0 auto;
+}

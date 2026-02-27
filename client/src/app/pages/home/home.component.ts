@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import {FlexLayoutModule} from "@angular/flex-layout";
+import { FlexLayoutModule } from "@angular/flex-layout";
 import { RedactionComponent } from '../../core/components/redaction/redaction.component';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +10,10 @@ import { MatIconModule } from '@angular/material/icon';
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss',
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    host: {
+        class: 'vertical-fill'
+    }
 })
 export class HomeComponent {
 }

@@ -3,7 +3,7 @@
     <app-sidebar (clickClose)="closeSidenav()"></app-sidebar>
   </mat-sidenav>
 
-  <mat-sidenav-content>
+  <mat-sidenav-content style="display: flex; flex-direction: column; min-height: 100vh;">
     <app-header (dashboardClick)="openSidenav()"></app-header>
     <router-outlet />
     <app-footer></app-footer>
