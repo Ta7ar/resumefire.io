@@ -141,7 +141,7 @@ export class RedactionComponent {
       disableClose: true,
       autoFocus: true,
       minHeight: 'fit-content',
-      minWidth: '560px',
+      // minWidth: '560px',
       enterAnimationDuration: '300ms',
       exitAnimationDuration: '300ms'
       // height: "100%",

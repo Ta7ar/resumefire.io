@@ -17,10 +17,9 @@
     padding-left: 20vw;
     padding-right: 20vw;
   }
-}
-
-a {
-  padding: 0 1rem;
+  a#logo {
+    padding: 0 1rem;
+  }
 }
 
 a#logo {
