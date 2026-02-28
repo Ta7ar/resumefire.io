@@ -1,9 +1,9 @@
 <div align="center">
       <img src="./client/public/logo.svg" width="100" height="100" alt="resumefire.io logo"/>
 </div>
-</br>
-
 <h2 align="center">resumefire.io</h2>
+
+</br>
 
 <img src="./.github/assets/images/hero.png" alt="resumefire.io hero" />
 
