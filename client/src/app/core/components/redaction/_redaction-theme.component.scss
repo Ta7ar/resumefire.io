@@ -19,6 +19,7 @@
 
   .bounding-box {
     stroke: mat.get-theme-color($theme, primary, 50);
+    stroke-width: 1px;
     fill: transparent;
   }
 

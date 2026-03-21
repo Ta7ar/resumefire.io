@@ -5,7 +5,7 @@
       <svg [attr.viewBox]="svgViewBox" id="bounding-boxes" xmlns="http://www.w3.org/2000/svg" #boundingBoxesSvg>
         @for(boundingBox of boundingBoxes; track boundingBox.toString(); let i =
         $index){
-        <rect class="bounding-box" stroke-width="2" [attr.height]="boundingBox[3]" [attr.width]="boundingBox[2]"
+        <rect class="bounding-box" [attr.height]="boundingBox[3]" [attr.width]="boundingBox[2]"
           [attr.y]="boundingBox[1]" [attr.x]="boundingBox[0]" [attr.id]="'bounding-box-' + i"
           (click)="selectedBoundingBoxes.toggle(boundingBox)"
           [class.selected]="selectedBoundingBoxes.isSelected(boundingBox)" rx="5" />
