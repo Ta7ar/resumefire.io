@@ -48,7 +48,7 @@ var PageLimitExceedError = errors.New("only single page resumes are supported")
 // 	return fmt.Sprintf("number of pages (%d) exceeds limit (1)", e.pageCount)
 // }
 
-var confiThreshold float64 = 66
+var confiThreshold float64 = 51
 var brandColor color.RGBA = color.RGBA{218, 60, 63, 255}
 
 type Resume struct {
