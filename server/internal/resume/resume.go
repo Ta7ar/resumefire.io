@@ -49,7 +49,7 @@ func init() {
 
 var PageLimitExceedError = errors.New("only single page resumes are supported")
 
-var confiThreshold float64 = 66
+var confiThreshold float64 = 51
 var brandColor color.RGBA = color.RGBA{218, 60, 63, 255}
 
 type Resume struct {
@@ -116,7 +116,7 @@ func NewResume(file *multipart.File) (*Resume, error) {
 	}
 
 	image := pagesRender.Result.Image
-	resizedImage := imaging.Resize(image, 1200, 0, imaging.Lanczos)
+	resizedImage := imaging.Resize(image, 2000, 0, imaging.Lanczos)
 
 	return &Resume{
 		NRGBA: *resizedImage,
