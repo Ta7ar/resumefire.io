@@ -2,7 +2,6 @@ package resume
 
 import (
 	"bytes"
-	"encoding/csv"
 	"errors"
 	"fmt"
 	"image"
@@ -12,14 +11,13 @@ import (
 	"io"
 	"log"
 	"mime/multipart"
-	"os/exec"
-	"strconv"
 	"time"
 
 	"github.com/disintegration/imaging"
 	"github.com/klippa-app/go-pdfium"
 	"github.com/klippa-app/go-pdfium/requests"
 	"github.com/klippa-app/go-pdfium/single_threaded"
+	"github.com/otiai10/gosseract/v2"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/goregular"
@@ -29,6 +27,7 @@ import (
 
 var pool pdfium.Pool
 var instance pdfium.Pdfium
+var tesseract *gosseract.Client
 
 func init() {
 	// Init the PDFium library and return the instance to open documents.
@@ -39,20 +38,19 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	tesseract = gosseract.NewClient()
+	// defer tesseract.Close()
+
+	if err := tesseract.SetVariable("tessedit_pageseg_mode", "3"); err != nil {
+		log.Fatal(err)
+	}
 }
 
 var PageLimitExceedError = errors.New("only single page resumes are supported")
 
-var BRAND_COLOR color.RGBA = color.RGBA{218, 60, 63, 255}
-
-const (
-	CONFIDENCE_THRESHOLD = 66
-	TESS_TSV_LEFT        = 6
-	TESS_TSV_TOP         = 7
-	TESS_TSV_WIDTH       = 8
-	TESS_TSV_HEIGHT      = 9
-	TESS_TSV_CONF        = 10
-)
+var confiThreshold float64 = 51
+var brandColor color.RGBA = color.RGBA{218, 60, 63, 255}
 
 type Resume struct {
 	image.NRGBA
@@ -118,7 +116,7 @@ func NewResume(file *multipart.File) (*Resume, error) {
 	}
 
 	image := pagesRender.Result.Image
-	resizedImage := imaging.Resize(image, 1200, 0, imaging.Lanczos)
+	resizedImage := imaging.Resize(image, 2000, 0, imaging.Lanczos)
 
 	return &Resume{
 		NRGBA: *resizedImage,
@@ -145,20 +143,11 @@ func (r *Resume) GetWordsBoundingBoxes() (*pageScan, error) {
 		return nil, err
 	}
 
-	cmd := exec.Command("tesseract", "stdin", "stdout", "--oem", "1", "tsv")
-	cmd.Stdin = bytes.NewReader(pngBytes)
-
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("Error running Tesseract: %w", err)
+	if err := tesseract.SetImageFromBytes(pngBytes); err != nil {
+		return nil, err
 	}
 
-	reader := csv.NewReader(&out)
-	reader.Comma = '\t'
-
-	records, err := reader.ReadAll()
+	bboxes, err := tesseract.GetBoundingBoxes(gosseract.RIL_WORD)
 	if err != nil {
 		return nil, err
 	}
@@ -168,20 +157,16 @@ func (r *Resume) GetWordsBoundingBoxes() (*pageScan, error) {
 
 	res := pageScan{
 		PageDimensions:    [2]int{height, width},
-		WordBoundingBoxes: make([][4]int, 0, len(records)),
+		WordBoundingBoxes: make([][4]int, 0, len(bboxes)),
 	}
 
-	for _, record := range records {
-		conf, err := strconv.ParseFloat(record[TESS_TSV_CONF], 64)
-		if err == nil && conf > CONFIDENCE_THRESHOLD {
-			x, _ := strconv.Atoi(record[TESS_TSV_LEFT])
-			y, _ := strconv.Atoi(record[TESS_TSV_TOP])
-			dx, _ := strconv.Atoi(record[TESS_TSV_WIDTH])
-			dy, _ := strconv.Atoi(record[TESS_TSV_HEIGHT])
-
-			boundingBox := [4]int{x, y, dx, dy}
-			res.WordBoundingBoxes = append(res.WordBoundingBoxes, boundingBox)
+	for _, boundingBox := range bboxes {
+		if boundingBox.Confidence < confiThreshold {
+			continue
 		}
+		box := boundingBox.Box
+		boxArr := [4]int{box.Min.X, box.Min.Y, box.Dx(), box.Dy()}
+		res.WordBoundingBoxes = append(res.WordBoundingBoxes, boxArr)
 	}
 
 	return &res, nil
@@ -191,7 +176,7 @@ func (r *Resume) Redact(boxes [][4]int) error {
 	for _, box := range boxes {
 		// 0 -> x, 1 -> y, 2 -> w, 3 -> h
 		rectToDraw := image.Rect(box[0], box[1], box[0]+box[2], box[1]+box[3])
-		draw.Draw(r, rectToDraw, image.NewUniform(BRAND_COLOR), image.Point{X: 0, Y: 0}, draw.Src)
+		draw.Draw(r, rectToDraw, image.NewUniform(brandColor), image.Point{X: 0, Y: 0}, draw.Src)
 	}
 	return nil
 }
@@ -214,7 +199,7 @@ func (r *Resume) AddLabel(x int, y int, label string) error {
 	point := fixed.Point26_6{fixed.I(x), fixed.I(y)}
 	d := &font.Drawer{
 		Dst:  r,
-		Src:  image.NewUniform(BRAND_COLOR),
+		Src:  image.NewUniform(brandColor),
 		Face: face,
 		Dot:  point,
 	}
