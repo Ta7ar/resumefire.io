@@ -94,7 +94,7 @@ func NewResume(file *multipart.File) (*Resume, error) {
 
 	for i := 0; i < getPageCount.PageCount; i++ {
 		renderRequests = append(renderRequests, requests.RenderPageInDPI{
-			DPI: 120,
+			DPI: 140,
 			Page: requests.Page{
 				ByIndex: &requests.PageByIndex{
 					Document: doc.Document,
