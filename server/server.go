@@ -182,8 +182,8 @@ func main() {
 	mux.HandleFunc("POST /api/resume/bounding-boxes/generate", generateBoundingBoxesHandler)
 	mux.HandleFunc("POST /api/resume/bounding-boxes/redact", redactBoundingBoxesHandler)
 
-	err := http.ListenAndServe(":8080", mux)
 	fmt.Println("server started on port 8080")
+	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
 		log.Fatal(err)
 	}
