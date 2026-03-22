@@ -35,6 +35,11 @@ RUN mkdir "/opt/pdfium/pkgconfig/" \
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${PDFIUM_PATH}/lib
 ENV PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:${PDFIUM_PATH}/pkgconfig
 
+ENV TESSDATA_PREFIX=/usr/share/tessdata_best
+RUN mkdir -p $TESSDATA_PREFIX
+
+RUN wget -P $TESSDATA_PREFIX https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata
+
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -64,6 +69,11 @@ RUN apt-get update && apt-get install -y \
 
 COPY --chown=appuser:appuser --chmod=755 --from=build ${PDFIUM_PATH} ${PDFIUM_PATH}
 COPY --chown=appuser:appuser --chmod=755 --from=build /usr/local/bin/app /usr/local/bin/app
+
+ENV TESSDATA_PREFIX=/usr/share/tessdata_best
+ENV OEM_LSTM_ONLY=1 
+
+COPY --chown=appuser:appuser --chmod=755 --from=build $TESSDATA_PREFIX $TESSDATA_PREFIX
 
 USER appuser
 

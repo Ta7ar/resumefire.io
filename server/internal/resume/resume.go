@@ -2,6 +2,7 @@ package resume
 
 import (
 	"bytes"
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"image"
@@ -11,12 +12,14 @@ import (
 	"io"
 	"log"
 	"mime/multipart"
+	"os/exec"
+	"strconv"
 	"time"
 
+	"github.com/disintegration/imaging"
 	"github.com/klippa-app/go-pdfium"
 	"github.com/klippa-app/go-pdfium/requests"
 	"github.com/klippa-app/go-pdfium/single_threaded"
-	"github.com/otiai10/gosseract/v2"
 
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/goregular"
@@ -40,19 +43,19 @@ func init() {
 
 var PageLimitExceedError = errors.New("only single page resumes are supported")
 
-// type PageLimitExceedError struct {
-// 	pageCount int
-// }
+var BRAND_COLOR color.RGBA = color.RGBA{218, 60, 63, 255}
 
-// func (e *PageLimitExceedError) Error() string {
-// 	return fmt.Sprintf("number of pages (%d) exceeds limit (1)", e.pageCount)
-// }
-
-var confiThreshold float64 = 66
-var brandColor color.RGBA = color.RGBA{218, 60, 63, 255}
+const (
+	CONFIDENCE_THRESHOLD = 66
+	TESS_TSV_LEFT        = 6
+	TESS_TSV_TOP         = 7
+	TESS_TSV_WIDTH       = 8
+	TESS_TSV_HEIGHT      = 9
+	TESS_TSV_CONF        = 10
+)
 
 type Resume struct {
-	image.RGBA
+	image.NRGBA
 }
 
 func NewResume(file *multipart.File) (*Resume, error) {
@@ -94,7 +97,7 @@ func NewResume(file *multipart.File) (*Resume, error) {
 
 	for i := 0; i < getPageCount.PageCount; i++ {
 		renderRequests = append(renderRequests, requests.RenderPageInDPI{
-			DPI: 140,
+			DPI: 600,
 			Page: requests.Page{
 				ByIndex: &requests.PageByIndex{
 					Document: doc.Document,
@@ -115,9 +118,10 @@ func NewResume(file *multipart.File) (*Resume, error) {
 	}
 
 	image := pagesRender.Result.Image
+	resizedImage := imaging.Resize(image, 1200, 0, imaging.Lanczos)
 
 	return &Resume{
-		RGBA: *image,
+		NRGBA: *resizedImage,
 	}, nil
 }
 
@@ -136,23 +140,25 @@ type pageScan struct {
 }
 
 func (r *Resume) GetWordsBoundingBoxes() (*pageScan, error) {
-	client := gosseract.NewClient()
-	defer client.Close()
-
-	if err := client.SetPageSegMode(gosseract.PSM_SINGLE_BLOCK); err != nil {
-		return nil, err
-	}
-
 	pngBytes, err := r.Png()
 	if err != nil {
 		return nil, err
 	}
 
-	if err := client.SetImageFromBytes(pngBytes); err != nil {
-		return nil, err
+	cmd := exec.Command("tesseract", "stdin", "stdout", "--oem", "1", "tsv")
+	cmd.Stdin = bytes.NewReader(pngBytes)
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("Error running Tesseract: %w", err)
 	}
 
-	bboxes, err := client.GetBoundingBoxes(gosseract.RIL_WORD)
+	reader := csv.NewReader(&out)
+	reader.Comma = '\t'
+
+	records, err := reader.ReadAll()
 	if err != nil {
 		return nil, err
 	}
@@ -162,16 +168,20 @@ func (r *Resume) GetWordsBoundingBoxes() (*pageScan, error) {
 
 	res := pageScan{
 		PageDimensions:    [2]int{height, width},
-		WordBoundingBoxes: make([][4]int, 0, len(bboxes)),
+		WordBoundingBoxes: make([][4]int, 0, len(records)),
 	}
 
-	for _, boundingBox := range bboxes {
-		if boundingBox.Confidence < confiThreshold {
-			continue
+	for _, record := range records {
+		conf, err := strconv.ParseFloat(record[TESS_TSV_CONF], 64)
+		if err == nil && conf > CONFIDENCE_THRESHOLD {
+			x, _ := strconv.Atoi(record[TESS_TSV_LEFT])
+			y, _ := strconv.Atoi(record[TESS_TSV_TOP])
+			dx, _ := strconv.Atoi(record[TESS_TSV_WIDTH])
+			dy, _ := strconv.Atoi(record[TESS_TSV_HEIGHT])
+
+			boundingBox := [4]int{x, y, dx, dy}
+			res.WordBoundingBoxes = append(res.WordBoundingBoxes, boundingBox)
 		}
-		box := boundingBox.Box
-		boxArr := [4]int{box.Min.X, box.Min.Y, box.Dx(), box.Dy()}
-		res.WordBoundingBoxes = append(res.WordBoundingBoxes, boxArr)
 	}
 
 	return &res, nil
@@ -181,7 +191,7 @@ func (r *Resume) Redact(boxes [][4]int) error {
 	for _, box := range boxes {
 		// 0 -> x, 1 -> y, 2 -> w, 3 -> h
 		rectToDraw := image.Rect(box[0], box[1], box[0]+box[2], box[1]+box[3])
-		draw.Draw(r, rectToDraw, image.NewUniform(brandColor), image.Point{X: 0, Y: 0}, draw.Src)
+		draw.Draw(r, rectToDraw, image.NewUniform(BRAND_COLOR), image.Point{X: 0, Y: 0}, draw.Src)
 	}
 	return nil
 }
@@ -204,7 +214,7 @@ func (r *Resume) AddLabel(x int, y int, label string) error {
 	point := fixed.Point26_6{fixed.I(x), fixed.I(y)}
 	d := &font.Drawer{
 		Dst:  r,
-		Src:  image.NewUniform(brandColor),
+		Src:  image.NewUniform(BRAND_COLOR),
 		Face: face,
 		Dot:  point,
 	}
